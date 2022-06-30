@@ -10,7 +10,7 @@ using Users.Repositories;
 namespace Users.Controllers
 {
     [ApiKeyAuth]
-    [ApiController] // Additional default behaviours
+    [ApiController]
     [Route("[controller]")]
     public class UsersController : ControllerBase
     {
