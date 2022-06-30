@@ -11,6 +11,7 @@ namespace Users.Repositories
         private readonly IMongoCollection<User> usersCollection;
         private const string databaseName = "monkeyBenchmark";
         private const string collectionName = "users";
+
         public MongoDbUsersRepository(IMongoClient mongoClient)
         {
             IMongoDatabase database = mongoClient.GetDatabase(databaseName);
@@ -21,15 +22,15 @@ namespace Users.Repositories
             usersCollection.InsertOne(user);
         }
 
-
         public void DeleteUser(Guid id)
         {
-            throw new NotImplementedException();
+            usersCollection.DeleteOne(user => user.Id == id);
         }
         
         public User GetUser(Guid id)
         {
-            throw new NotImplementedException();
+            return usersCollection.Find(Builders<User>.Filter.Eq(item => item.Id, id))
+                .SingleOrDefault();
         }
         
         public IEnumerable<User> GetUsers()
@@ -39,9 +40,7 @@ namespace Users.Repositories
         
         public void UpdateUser(User user)
         {
-            throw new NotImplementedException();
+            usersCollection.ReplaceOne(Builders<User>.Filter.Eq(existingUser => existingUser.Id, user.Id), user);
         }
-
-
     }
 }
