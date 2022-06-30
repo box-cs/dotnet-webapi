@@ -6,11 +6,8 @@ namespace Users.Dtos
 {
     public record UpdateUserDto
     {
-        [Required]
         public string FirstName { get; init; }
-        [Required]
         public string LastName { get; init; }
-        [Required]
         [EmailAddress(ErrorMessage = "Invalid Email Address")]
         public string Email { get; init; }
         [StringLength(30, ErrorMessage = "Must be between 8 and 30 characters", MinimumLength = 8)]
