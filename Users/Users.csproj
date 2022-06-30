@@ -9,4 +9,19 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="..\..\..\JS\monkey-benchmark-frontend-api\monkey-benchmark\api\Users\index.js">
+      <Link>monkey-benchmark-frontend-api\monkey-benchmark\api\Users\index.js</Link>
+    </Content>
+    <Content Include="..\..\..\JS\monkey-benchmark-frontend-api\package.json">
+      <Link>monkey-benchmark-frontend-api\package.json</Link>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="..\..\..\JS\monkey-benchmark-frontend-api\.idea\.idea.monkey-benchmark-frontend-api.dir">
+      <Link>monkey-benchmark-frontend-api\.idea\.idea.monkey-benchmark-frontend-api.dir</Link>
+    </Folder>
+  </ItemGroup>
+
 </Project>
