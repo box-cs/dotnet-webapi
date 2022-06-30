@@ -4,7 +4,6 @@ using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Users.Dtos;
 using Users.Entities;
-using Users.Filters;
 using Users.Repositories;
 
 namespace Users.Controllers
@@ -92,7 +91,15 @@ namespace Users.Controllers
             if (user is null) return NotFound();
 
             if (Hash.CompareHashes(password,user.Password))
-                return Ok(user);
+                return Ok(
+                    new
+                    {
+                     user.Id,
+                     user.FirstName,
+                     user.LastName,
+                     user.Email,
+                     user.CreatedDate
+                    });
             return NotFound();
         }
     }
