@@ -6,6 +6,7 @@ namespace Users.Repositories
 {
     public interface IUsersRepository
     {
+        User GetUser(string email);
         User GetUser(Guid id);
         IEnumerable<User> GetUsers();
         void CreateUser(User user);

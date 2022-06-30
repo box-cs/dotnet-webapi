@@ -1,5 +1,7 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Users.Entities;
@@ -29,7 +31,13 @@ namespace Users.Repositories
         
         public User GetUser(Guid id)
         {
-            return usersCollection.Find(Builders<User>.Filter.Eq(item => item.Id, id))
+            return usersCollection.Find(Builders<User>.Filter.Eq(user => user.Id, id))
+                .SingleOrDefault();
+        }
+
+        public User GetUser(string email)
+        {
+            return usersCollection.Find(Builders<User>.Filter.Eq(user => user.Email, email))
                 .SingleOrDefault();
         }
         
