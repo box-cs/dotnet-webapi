@@ -73,7 +73,6 @@ namespace Users.Controllers
             repository.UpdateUser(updatedUser);
             
             return NoContent();
-            
         }
 
         [HttpDelete("{id:guid}")] // Delete /users/{id}
@@ -84,6 +83,17 @@ namespace Users.Controllers
             repository.DeleteUser(id);
 
             return NoContent();
+        }
+
+        [HttpPost("login")]
+        public ActionResult Login(string email, string password)
+        {
+            var user = repository.GetUser(email);
+            if (user is null) return NotFound();
+
+            if (Hash.CompareHashes(password,user.Password))
+                return Ok(user);
+            return NotFound();
         }
     }
 }
