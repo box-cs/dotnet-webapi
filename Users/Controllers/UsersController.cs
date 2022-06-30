@@ -4,10 +4,12 @@ using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Users.Dtos;
 using Users.Entities;
+using Users.Filters;
 using Users.Repositories;
 
 namespace Users.Controllers
 {
+    [ApiKeyAuth]
     [ApiController] // Additional default behaviours
     [Route("[controller]")]
     public class UsersController : ControllerBase
