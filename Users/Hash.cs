@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers.Text;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
@@ -40,6 +41,14 @@ namespace Users
             string hashed = ToHash(password, salt);
 
             return $"{Convert.ToBase64String(salt)}{hashed}";
+        }
+        
+        public static bool CompareHashes(string password, string hashedPassword)
+        {
+            byte[] salt = Convert.FromBase64String(hashedPassword[..24]);
+            string hash = ToHash(password, salt);
+            string inputtedHashedPassword = $"{Convert.ToBase64String(salt)}{hash}";
+            return inputtedHashedPassword.Equals(hashedPassword);
         }
     }
 }
