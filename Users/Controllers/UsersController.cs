@@ -9,7 +9,7 @@ using Users.Repositories;
 
 namespace Users.Controllers
 {
-    [ApiKeyAuth]
+    // [ApiKeyAuth]
     [ApiController]
     [Route("[controller]")]
     public class UsersController : ControllerBase
@@ -53,7 +53,10 @@ namespace Users.Controllers
             return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user.AsDto());
         }
 
-        [HttpPut("{id:guid}")] // PUT /users
+        /// <summary>
+        /// Updates user fields that are passed in
+        /// </summary>
+        [HttpPut("{id:guid}")] // PUT /users 
         public ActionResult UpdateUser(Guid id, UpdateUserDto userDto)
         {
             var existingUser = repository.GetUser(id);
@@ -61,10 +64,10 @@ namespace Users.Controllers
 
             User updatedUser = existingUser with
             {
-                FirstName = userDto.FirstName,
-                LastName = userDto.LastName,
-                Email = userDto.Email,
-                Password = Hash.GeneratePassword(userDto.Password),
+                FirstName = userDto.FirstName ?? existingUser.FirstName,
+                LastName = userDto.LastName ?? existingUser.LastName ,
+                Email = userDto.Email ?? existingUser.Email,
+                Password = userDto.Password is not null ? Hash.GeneratePassword(userDto.Password) : existingUser.Password,
             };
             
             repository.UpdateUser(updatedUser);
