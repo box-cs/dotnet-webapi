@@ -4,17 +4,16 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Cors; // TODO Remember to remove cors and all EnableCors attributes
 using Microsoft.AspNetCore.Mvc;
 using Users.Dtos;
 using Users.Entities;
+using Users.Filters;
 using Users.Repositories;
 
 namespace Users.Controllers
 {
-    // [ApiKeyAuth]
+    [ApiKeyAuth]
     [ApiController]
-    [EnableCors("AllowOrigin")]
     [Route("[controller]")]
     public class UsersController : ControllerBase
     {
@@ -26,7 +25,6 @@ namespace Users.Controllers
         }
 
         [HttpGet] // GET /users
-        [EnableCors("AllowOrigin")]
         public async Task<IEnumerable<UserDto>> GetUsersAsync()
         {
             var users = (await repository.GetUsersAsync())
@@ -35,7 +33,6 @@ namespace Users.Controllers
         }
 
         [HttpGet("{id:guid}")] // Get /users/{id}
-        [EnableCors("AllowOrigin")]
         public async Task<ActionResult<UserDto>> GetUserAsync(Guid id)
         {
             var user = await repository.GetUserAsync(id);
@@ -60,7 +57,6 @@ namespace Users.Controllers
         }
 
         [HttpPost] // POST /users
-        [EnableCors("AllowOrigin")]
         public async Task<ActionResult<UserDto>> CreateUserAsync(CreateUserDto userDto)
         {
             User user = new()
@@ -78,7 +74,6 @@ namespace Users.Controllers
         }
 
         [HttpPut("{id:guid}")] // PUT /users 
-        [EnableCors("AllowOrigin")]
         public async Task<ActionResult> UpdateUserAsync(Guid id, UpdateUserDto userDto)
         {
             var existingUser = await repository.GetUserAsync(id);
@@ -100,7 +95,6 @@ namespace Users.Controllers
         }
 
         [HttpDelete("{id:guid}")] // Delete /users/{id}
-        [EnableCors("AllowOrigin")]
         public async Task<ActionResult> DeleteUserAsync(Guid id)
         {
             var user = repository.GetUserAsync(id);
