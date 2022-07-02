@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors; // TODO Remember to remove cors and all EnableCors attributes
 using Microsoft.AspNetCore.Mvc;
 using Users.Dtos;
 using Users.Entities;
@@ -10,7 +13,8 @@ namespace Users.Controllers
 {
     // [ApiKeyAuth]
     [ApiController]
-    [Route("[controller]")]
+    [EnableCors("AllowOrigin")]
+    [Route("api/[controller]")]
     public class UsersController : ControllerBase
     {
         private readonly IUsersRepository repository;
@@ -21,6 +25,7 @@ namespace Users.Controllers
         }
 
         [HttpGet] // GET /users
+        [EnableCors("AllowOrigin")]
         public IEnumerable<UserDto> GetUsers()
         {
             var users = repository.GetUsers().Select(user => user.AsDto());
@@ -28,13 +33,32 @@ namespace Users.Controllers
         }
 
         [HttpGet("{id:guid}")] // Get /users/{id}
+        [EnableCors("AllowOrigin")]
         public ActionResult<UserDto> GetUser(Guid id)
         {
             var user = repository.GetUser(id);
             return user is null ? NotFound() : user.AsDto();
         }
 
+        [HttpGet("/Current")]
+        [Authorize]
+        public ActionResult GetCurrentUser()
+        {
+            if (HttpContext.User.Identity is not ClaimsIdentity identity) return NotFound();
+            var userClaims = identity.Claims;
+            
+            return Ok(
+                new
+                {
+                    Id = userClaims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value,
+                    FirstName = userClaims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value,
+                    LastName = userClaims.FirstOrDefault(c => c.Type == ClaimTypes.Surname)?.Value,
+                    Email = userClaims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value,
+                });
+        }
+
         [HttpPost] // POST /users
+        [EnableCors("AllowOrigin")]
         public ActionResult<UserDto> CreateUser(CreateUserDto userDto)
         {
             User user = new()
@@ -46,16 +70,14 @@ namespace Users.Controllers
                 Email = userDto.Email,
                 CreatedDate = DateTimeOffset.Now
             };
-            
+
             repository.CreateUser(user);
 
             return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user.AsDto());
         }
 
-        /// <summary>
-        /// Updates user fields that are passed in
-        /// </summary>
         [HttpPut("{id:guid}")] // PUT /users 
+        [EnableCors("AllowOrigin")]
         public ActionResult UpdateUser(Guid id, UpdateUserDto userDto)
         {
             var existingUser = repository.GetUser(id);
@@ -64,17 +86,20 @@ namespace Users.Controllers
             User updatedUser = existingUser with
             {
                 FirstName = userDto.FirstName ?? existingUser.FirstName,
-                LastName = userDto.LastName ?? existingUser.LastName ,
+                LastName = userDto.LastName ?? existingUser.LastName,
                 Email = userDto.Email ?? existingUser.Email,
-                Password = userDto.Password is not null ? Hash.GeneratePassword(userDto.Password) : existingUser.Password,
+                Password = userDto.Password is not null
+                    ? Hash.GeneratePassword(userDto.Password)
+                    : existingUser.Password,
             };
-            
+
             repository.UpdateUser(updatedUser);
-            
+
             return NoContent();
         }
 
         [HttpDelete("{id:guid}")] // Delete /users/{id}
+        [EnableCors("AllowOrigin")]
         public ActionResult DeleteUser(Guid id)
         {
             var user = repository.GetUser(id);
@@ -82,25 +107,6 @@ namespace Users.Controllers
             repository.DeleteUser(id);
 
             return NoContent();
-        }
-
-        [HttpPost("login")]
-        public ActionResult Login(string email, string password)
-        {
-            var user = repository.GetUser(email);
-            if (user is null) return NotFound();
-
-            if (Hash.CompareHashes(password,user.Password))
-                return Ok(
-                    new
-                    {
-                     user.Id,
-                     user.FirstName,
-                     user.LastName,
-                     user.Email,
-                     user.CreatedDate
-                    });
-            return NotFound();
         }
     }
 }
