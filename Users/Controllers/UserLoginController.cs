@@ -4,19 +4,18 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Cors; // TODO Remember to remove cors and all EnableCors attributes
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Users.Dtos;
 using Users.Entities;
+using Users.Filters;
 using Users.Repositories;
 using Users.Settings;
 
 namespace Users.Controllers
 {
-    // [ApiKeyAuth]
+    [ApiKeyAuth]
     [ApiController]
-    [EnableCors("AllowOrigin")]
     [Route("api/[controller]")]
     public class UserLoginController : ControllerBase
     {
@@ -28,7 +27,6 @@ namespace Users.Controllers
         }
 
         [AllowAnonymous]
-        [EnableCors("AllowOrigin")]
         [HttpPost]
         public async Task<ActionResult> Login(LoginUserDto userDto)
         {
