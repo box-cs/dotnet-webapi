@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -19,36 +20,36 @@ namespace Users.Repositories
             IMongoDatabase database = mongoClient.GetDatabase(databaseName);
             usersCollection = database.GetCollection<User>(collectionName);
         }
-        public void CreateUser(User user)
+        public async Task CreateUserAsync(User user)
         {
-            usersCollection.InsertOne(user);
+            await usersCollection.InsertOneAsync(user);
         }
 
-        public void DeleteUser(Guid id)
+        public async Task DeleteUserAsync(Guid id)
         {
-            usersCollection.DeleteOne(user => user.Id == id);
+            await usersCollection.DeleteOneAsync(user => user.Id == id);
         }
         
-        public User GetUser(Guid id)
+        public async Task<User> GetUserAsync(Guid id)
         {
-            return usersCollection.Find(Builders<User>.Filter.Eq(user => user.Id, id))
-                .SingleOrDefault();
+            return await usersCollection.Find(Builders<User>.Filter.Eq(user => user.Id, id))
+                .SingleOrDefaultAsync();
         }
 
-        public User GetUser(string email)
+        public async Task<User> GetUserAsync(string email)
         {
-            return usersCollection.Find(Builders<User>.Filter.Eq(user => user.Email, email))
-                .SingleOrDefault();
+            return await usersCollection.Find(Builders<User>.Filter.Eq(user => user.Email, email))
+                .SingleOrDefaultAsync();
         }
         
-        public IEnumerable<User> GetUsers()
+        public async Task<IEnumerable<User>> GetUsersAsync()
         {
-            return usersCollection.Find(new BsonDocument()).ToList();
+            return await usersCollection.Find(new BsonDocument()).ToListAsync();
         }
         
-        public void UpdateUser(User user)
+        public async Task UpdateUserAsync(User user)
         {
-            usersCollection.ReplaceOne(Builders<User>.Filter.Eq(existingUser => existingUser.Id, user.Id), user);
+            await usersCollection.ReplaceOneAsync(Builders<User>.Filter.Eq(existingUser => existingUser.Id, user.Id), user);
         }
     }
 }
