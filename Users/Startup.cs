@@ -13,7 +13,7 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
 using Users.Repositories;
 using Users.Settings;
-// TODO Remember to remove cors dev debug settings
+
 namespace Users
 {
     public class Startup
@@ -61,16 +61,6 @@ namespace Users
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Users", Version = "v1" });
             });
-            
-            #region Allow-Orgin
-            services.AddCors(c =>
-            {
-                c.AddPolicy("AllowOrigin", options =>
-                {
-                    options.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
-                });
-            });
-            #endregion
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -88,9 +78,6 @@ namespace Users
             app.UseRouting();
             app.UseAuthentication();
             
-            #region Allow-Orgin
-            app.UseCors();
-            #endregion
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
