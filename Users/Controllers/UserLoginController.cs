@@ -2,6 +2,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors; // TODO Remember to remove cors and all EnableCors attributes
 using Microsoft.AspNetCore.Mvc;
@@ -30,9 +31,9 @@ namespace Users.Controllers
         [AllowAnonymous]
         [EnableCors("AllowOrigin")]
         [HttpPost]
-        public ActionResult Login(LoginUserDto userDto)
+        public async Task<ActionResult> Login(LoginUserDto userDto)
         {
-            var user = repository.GetUser(userDto.Email);
+            var user = await repository.GetUserAsync(userDto.Email);
             if (user is null) return NotFound();
 
             if (Hash.CompareHashes(userDto.Password, user.Password))
