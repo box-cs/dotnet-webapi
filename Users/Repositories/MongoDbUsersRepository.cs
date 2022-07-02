@@ -11,7 +11,7 @@ namespace Users.Repositories
     public class MongoDbUsersRepository :IUsersRepository
     {
         private readonly IMongoCollection<User> usersCollection;
-        private const string databaseName = "monkeyBenchmark";
+        private const string databaseName = "testdb";
         private const string collectionName = "users";
 
         public MongoDbUsersRepository(IMongoClient mongoClient)
