@@ -1,14 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Users.Dtos;
 using Users.Entities;
+using Users.Filters;
 using Users.Repositories;
 
 namespace Users.Controllers
 {
-    // [ApiKeyAuth]
+    [ApiKeyAuth]
     [ApiController]
     [Route("[controller]")]
     public class UsersController : ControllerBase
@@ -21,21 +25,39 @@ namespace Users.Controllers
         }
 
         [HttpGet] // GET /users
-        public IEnumerable<UserDto> GetUsers()
+        public async Task<IEnumerable<UserDto>> GetUsersAsync()
         {
-            var users = repository.GetUsers().Select(user => user.AsDto());
+            var users = (await repository.GetUsersAsync())
+                .Select(user => user.AsDto());
             return users;
         }
 
         [HttpGet("{id:guid}")] // Get /users/{id}
-        public ActionResult<UserDto> GetUser(Guid id)
+        public async Task<ActionResult<UserDto>> GetUserAsync(Guid id)
         {
-            var user = repository.GetUser(id);
+            var user = await repository.GetUserAsync(id);
             return user is null ? NotFound() : user.AsDto();
         }
 
+        [HttpGet("/Current")]
+        [Authorize]
+        public ActionResult GetCurrentUser()
+        {
+            if (HttpContext.User.Identity is not ClaimsIdentity identity) return NotFound();
+            var userClaims = identity.Claims;
+            
+            return Ok(
+                new
+                {
+                    Id = userClaims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value,
+                    FirstName = userClaims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value,
+                    LastName = userClaims.FirstOrDefault(c => c.Type == ClaimTypes.Surname)?.Value,
+                    Email = userClaims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value,
+                });
+        }
+
         [HttpPost] // POST /users
-        public ActionResult<UserDto> CreateUser(CreateUserDto userDto)
+        public async Task<ActionResult<UserDto>> CreateUserAsync(CreateUserDto userDto)
         {
             User user = new()
             {
@@ -46,61 +68,40 @@ namespace Users.Controllers
                 Email = userDto.Email,
                 CreatedDate = DateTimeOffset.Now
             };
-            
-            repository.CreateUser(user);
 
-            return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user.AsDto());
+            await repository.CreateUserAsync(user);
+            return CreatedAtAction("GetUser", new { id = user.Id }, user.AsDto());
         }
 
-        /// <summary>
-        /// Updates user fields that are passed in
-        /// </summary>
         [HttpPut("{id:guid}")] // PUT /users 
-        public ActionResult UpdateUser(Guid id, UpdateUserDto userDto)
+        public async Task<ActionResult> UpdateUserAsync(Guid id, UpdateUserDto userDto)
         {
-            var existingUser = repository.GetUser(id);
+            var existingUser = await repository.GetUserAsync(id);
             if (existingUser is null) return NotFound();
 
             User updatedUser = existingUser with
             {
                 FirstName = userDto.FirstName ?? existingUser.FirstName,
-                LastName = userDto.LastName ?? existingUser.LastName ,
+                LastName = userDto.LastName ?? existingUser.LastName,
                 Email = userDto.Email ?? existingUser.Email,
-                Password = userDto.Password is not null ? Hash.GeneratePassword(userDto.Password) : existingUser.Password,
+                Password = userDto.Password is not null
+                    ? Hash.GeneratePassword(userDto.Password)
+                    : existingUser.Password,
             };
-            
-            repository.UpdateUser(updatedUser);
-            
+
+            await repository.UpdateUserAsync(updatedUser);
+
             return NoContent();
         }
 
         [HttpDelete("{id:guid}")] // Delete /users/{id}
-        public ActionResult DeleteUser(Guid id)
+        public async Task<ActionResult> DeleteUserAsync(Guid id)
         {
-            var user = repository.GetUser(id);
+            var user = repository.GetUserAsync(id);
             if (user is null) return NotFound();
-            repository.DeleteUser(id);
+            await repository.DeleteUserAsync(id);
 
             return NoContent();
-        }
-
-        [HttpPost("login")]
-        public ActionResult Login(string email, string password)
-        {
-            var user = repository.GetUser(email);
-            if (user is null) return NotFound();
-
-            if (Hash.CompareHashes(password,user.Password))
-                return Ok(
-                    new
-                    {
-                     user.Id,
-                     user.FirstName,
-                     user.LastName,
-                     user.Email,
-                     user.CreatedDate
-                    });
-            return NotFound();
         }
     }
 }

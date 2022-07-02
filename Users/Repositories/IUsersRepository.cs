@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Users.Entities;
 
 namespace Users.Repositories
 {
     public interface IUsersRepository
     {
-        User GetUser(string email);
-        User GetUser(Guid id);
-        IEnumerable<User> GetUsers();
-        void CreateUser(User user);
-        void UpdateUser(User user);
-        void DeleteUser(Guid id);
+        Task<User> GetUserAsync(string email);
+        Task<User> GetUserAsync(Guid id);
+        Task<IEnumerable<User>> GetUsersAsync();
+        Task CreateUserAsync(User user);
+        Task UpdateUserAsync(User user);
+        Task DeleteUserAsync(Guid id);
     }
 }
