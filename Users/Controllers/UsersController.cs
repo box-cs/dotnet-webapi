@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors; // TODO Remember to remove cors and all EnableCors attributes
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +15,7 @@ namespace Users.Controllers
     // [ApiKeyAuth]
     [ApiController]
     [EnableCors("AllowOrigin")]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class UsersController : ControllerBase
     {
         private readonly IUsersRepository repository;
@@ -26,17 +27,18 @@ namespace Users.Controllers
 
         [HttpGet] // GET /users
         [EnableCors("AllowOrigin")]
-        public IEnumerable<UserDto> GetUsers()
+        public async Task<IEnumerable<UserDto>> GetUsersAsync()
         {
-            var users = repository.GetUsers().Select(user => user.AsDto());
+            var users = (await repository.GetUsersAsync())
+                .Select(user => user.AsDto());
             return users;
         }
 
         [HttpGet("{id:guid}")] // Get /users/{id}
         [EnableCors("AllowOrigin")]
-        public ActionResult<UserDto> GetUser(Guid id)
+        public async Task<ActionResult<UserDto>> GetUserAsync(Guid id)
         {
-            var user = repository.GetUser(id);
+            var user = await repository.GetUserAsync(id);
             return user is null ? NotFound() : user.AsDto();
         }
 
@@ -59,7 +61,7 @@ namespace Users.Controllers
 
         [HttpPost] // POST /users
         [EnableCors("AllowOrigin")]
-        public ActionResult<UserDto> CreateUser(CreateUserDto userDto)
+        public async Task<ActionResult<UserDto>> CreateUserAsync(CreateUserDto userDto)
         {
             User user = new()
             {
@@ -71,16 +73,15 @@ namespace Users.Controllers
                 CreatedDate = DateTimeOffset.Now
             };
 
-            repository.CreateUser(user);
-
-            return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user.AsDto());
+            await repository.CreateUserAsync(user);
+            return CreatedAtAction("GetUser", new { id = user.Id }, user.AsDto());
         }
 
         [HttpPut("{id:guid}")] // PUT /users 
         [EnableCors("AllowOrigin")]
-        public ActionResult UpdateUser(Guid id, UpdateUserDto userDto)
+        public async Task<ActionResult> UpdateUserAsync(Guid id, UpdateUserDto userDto)
         {
-            var existingUser = repository.GetUser(id);
+            var existingUser = await repository.GetUserAsync(id);
             if (existingUser is null) return NotFound();
 
             User updatedUser = existingUser with
@@ -93,18 +94,18 @@ namespace Users.Controllers
                     : existingUser.Password,
             };
 
-            repository.UpdateUser(updatedUser);
+            await repository.UpdateUserAsync(updatedUser);
 
             return NoContent();
         }
 
         [HttpDelete("{id:guid}")] // Delete /users/{id}
         [EnableCors("AllowOrigin")]
-        public ActionResult DeleteUser(Guid id)
+        public async Task<ActionResult> DeleteUserAsync(Guid id)
         {
-            var user = repository.GetUser(id);
+            var user = repository.GetUserAsync(id);
             if (user is null) return NotFound();
-            repository.DeleteUser(id);
+            await repository.DeleteUserAsync(id);
 
             return NoContent();
         }
