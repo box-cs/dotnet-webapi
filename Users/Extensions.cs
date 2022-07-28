@@ -16,5 +16,13 @@ namespace Users
                 CreatedDate = user.CreatedDate
             };
         }
+        
+        public static ReactionTimeGameSessionDto AsDto(this ReactionTime reactionTimeSession)
+        {
+            return new ReactionTimeGameSessionDto {
+                UserId = reactionTimeSession.UserId,
+                ReactionTimes = reactionTimeSession.ReactionTimes
+            };
+        }
     }
 }
