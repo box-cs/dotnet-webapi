@@ -1,9 +1,13 @@
-Users.Api/bin/*
-Users.Api/obj/*
-Users.Api/.idea/*
+Users/Users.Api/bin/*
+Users/Users.Api/obj/*
+Users/Users.Api/.idea/*
 build.proj
 .idea
 .vscode
 Users.UnitTests/bin/*
-Users.UnitTests/bin/*/obj/*
+Users.UnitTests/obj/*
 Users.UnitTests/.idea/*
+
+Users/Users.UnitTests/bin/*
+Users/Users.UnitTests/obj/*
+Users/Users.UnitTests/.idea/*
