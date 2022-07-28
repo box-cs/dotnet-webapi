@@ -1,3 +1,6 @@
-Users/bin/*
-Users/obj/*
-Users/.idea/*
+Users.Api/bin/*
+Users.Api/obj/*
+Users.Api/.idea/*
+build.proj
+.idea
+.vscode
