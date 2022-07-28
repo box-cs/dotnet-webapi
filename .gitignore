@@ -4,3 +4,6 @@ Users.Api/.idea/*
 build.proj
 .idea
 .vscode
+Users.UnitTests/bin/*
+Users.UnitTests/bin/*/obj/*
+Users.UnitTests/.idea/*
