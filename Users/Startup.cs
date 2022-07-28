@@ -50,7 +50,7 @@ namespace Users
             BsonSerializer.RegisterSerializer(new GuidSerializer(BsonType.String));
             BsonSerializer.RegisterSerializer(new DateTimeOffsetSerializer(BsonType.String));
 
-            services.AddSingleton<IMongoClient>(segrviceProvider =>
+            services.AddSingleton<IMongoClient>(serviceProvider =>
             {
                 var settings = Configuration.GetSection(nameof(MongoDbSettings)).Get<MongoDbSettings>();
                 return new MongoClient(settings.ConnectionString);
