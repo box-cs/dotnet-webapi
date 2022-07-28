@@ -50,13 +50,14 @@ namespace Users
             BsonSerializer.RegisterSerializer(new GuidSerializer(BsonType.String));
             BsonSerializer.RegisterSerializer(new DateTimeOffsetSerializer(BsonType.String));
 
-            services.AddSingleton<IMongoClient>(serviceProvider =>
+            services.AddSingleton<IMongoClient>(segrviceProvider =>
             {
                 var settings = Configuration.GetSection(nameof(MongoDbSettings)).Get<MongoDbSettings>();
                 return new MongoClient(settings.ConnectionString);
             });
 
             services.AddSingleton<IUsersRepository, MongoDbUsersRepository>();
+            services.AddSingleton<IReactionTimesRepository, MongoDbReactionTimesRepository>();
             services.AddControllers();
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "Users", Version = "v1" }); });
         }
